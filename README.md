@@ -11,7 +11,7 @@ NFS :
 - edit /boot/cmline.txt 
 
 # this is the bare minimum needed to boot from nfsroot
-    dwc_otg.lpm_enable=0 console=tty3 initrd=initrd.img.nbd root=/dev/nfs nfsroot=192.168.121.40:/nfs/pi/disk,tcp,vers=4 rw ip=dhcp rootfstype=nfs elevator=deadline rootwait smsc95xx.turbo_mode=N
+    dwc_otg.lpm_enable=0 console=tty3 root=/dev/nfs nfsroot=192.168.121.40:/nfs/pi/disk,tcp,vers=4 rw ip=dhcp rootfstype=nfs elevator=deadline rootwait smsc95xx.turbo_mode=N
 
 - before booting edit you fstab comment the / mount line
 
@@ -28,15 +28,26 @@ I didn't need to add the nfs in fstab since it's passed as a command at boot
 
 NBD : WIP
 
+added to boot/config.txt
+
+initramfs initrd.img.nbd
+ramfsfile="initrd.img.nbd"
+ramfsaddr=-1
+
 - same steps but instead of a directory we need to create a sparse image to boot on
 
       truncate -s 20000M file.img
       cp file.img raspi_fs.img
 - change user:group for nbd 
       sudo chown nbd:nbd raspi_fs.img
-- sudo modrprobe nbd
+- format it as btrfs
+- and load the nbd module
+        sudo modprobe nbd
+- WIP: compile vmlinuz and initrd pass it them as options to cmdline.txt
+- profit ??
+
 - Mount nbd location and copy rootfs to nbd
-     nbd-client -N raspi /dev/nbd0
+     sudo nbd-client -N raspi 192.168.121.40 /dev/nbd0
 - edit /boot/cmline.txt       
 
 
